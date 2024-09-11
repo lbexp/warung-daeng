@@ -8,10 +8,13 @@ export class ProductController {
   constructor(private productService: ProductService) {}
 
   @Post()
-  create(@Body() createProductRequest: CreateProductRequest): string {
-    this.productService.create({
+  async create(
+    @Body() createProductRequest: CreateProductRequest,
+  ): Promise<string> {
+    const result = await this.productService.create({
       id: createProductRequest.id,
       categoryId: createProductRequest.category_id,
+      categoryName: createProductRequest.category_name,
       description: createProductRequest.description,
       height: createProductRequest.height,
       image: createProductRequest.image,
@@ -22,7 +25,12 @@ export class ProductController {
       weight: createProductRequest.weight,
       width: createProductRequest.width,
     });
-    return `This action create new product ${createProductRequest}`;
+
+    if (!result.success) {
+      return result.error;
+    }
+
+    return 'Success';
   }
 
   @Get()
