@@ -1,6 +1,21 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { PaginationRequest } from 'src/dtos/common.dto';
-import { CreateProductRequest } from 'src/dtos/product.dto';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { ERROR_CODE } from 'src/constants';
+
+import { MetaResponse, Pagination } from 'src/dtos/common.dto';
+import {
+  CreateProductRequest,
+  GetAllProductsResponse,
+  GetProductResponse,
+} from 'src/dtos/product.dto';
 import { ProductService } from 'src/service/product.service';
 
 @Controller('products')
@@ -10,7 +25,7 @@ export class ProductController {
   @Post()
   async create(
     @Body() createProductRequest: CreateProductRequest,
-  ): Promise<string> {
+  ): Promise<MetaResponse> {
     const result = await this.productService.create({
       id: createProductRequest.id,
       categoryId: createProductRequest.category_id,
@@ -27,31 +42,80 @@ export class ProductController {
     });
 
     if (!result.success) {
-      return result.error;
+      switch (result.errorCode) {
+        case ERROR_CODE[400]:
+          throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
+        case ERROR_CODE[404]:
+          throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+        default:
+          throw new HttpException(
+            'Internal server error',
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+      }
     }
 
-    return 'Success';
+    return {
+      message: 'Success',
+      statusCode: HttpStatus.CREATED,
+    };
   }
 
   @Get()
-  async getAll(@Query() query: PaginationRequest): Promise<string> {
+  async getAll(
+    @Query() query: Pagination,
+  ): Promise<MetaResponse<GetAllProductsResponse>> {
     const result = await this.productService.getAll(query);
 
     if (!result.success) {
-      return result.error;
+      switch (result.errorCode) {
+        case ERROR_CODE[400]:
+          throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
+        case ERROR_CODE[404]:
+          throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+        default:
+          throw new HttpException(
+            'Internal server error',
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+      }
     }
 
-    return `This action returns all product ${JSON.stringify(result.products)}`;
+    return {
+      message: 'Success',
+      statusCode: HttpStatus.OK,
+      data: {
+        limit: query.limit,
+        page: query.page,
+        data: result.products,
+      },
+    };
   }
 
   @Get(':id')
-  async getById(@Param() params: { id: string }): Promise<string> {
+  async getById(
+    @Param() params: { id: string },
+  ): Promise<MetaResponse<GetProductResponse>> {
     const result = await this.productService.getById(parseInt(params.id, 10));
 
     if (!result.success) {
-      return result.error;
+      switch (result.errorCode) {
+        case ERROR_CODE[400]:
+          throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
+        case ERROR_CODE[404]:
+          throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+        default:
+          throw new HttpException(
+            'Internal server error',
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+      }
     }
 
-    return `This action returns specific product ${JSON.stringify(result.product)}`;
+    return {
+      message: 'Success',
+      statusCode: HttpStatus.OK,
+      data: result.product,
+    };
   }
 }

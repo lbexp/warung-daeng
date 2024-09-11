@@ -2,15 +2,17 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { Pool, QueryResult } from 'pg';
 
-import { DB_CONNECTION } from 'src/constants';
-import { PaginationRequest } from 'src/dtos/common.dto';
+import { DB_CONNECTION, ERROR_CODE } from 'src/constants';
+import { Pagination } from 'src/dtos/common.dto';
 import { Product } from 'src/entities/product.entity';
 
 @Injectable()
 export class ProductService {
   constructor(@Inject(DB_CONNECTION) private conn: Pool) {}
 
-  async create(product: Product): Promise<{ success: boolean; error: string }> {
+  async create(
+    product: Product,
+  ): Promise<{ success: boolean; errorCode: string }> {
     try {
       await this.conn.query('BEGIN');
 
@@ -18,12 +20,12 @@ export class ProductService {
 
       if (!product.categoryId) {
         resultCategory = await this.conn.query(
-          'INSERT INTO categories(name) VALUES($1) RETURNING *',
+          'INSERT INTO categories(name) VALUES($1)',
           [product.categoryName],
         );
 
         if (resultCategory.rowCount === 0) {
-          throw 'Error';
+          throw new Error(ERROR_CODE[500]);
         }
       }
 
@@ -32,7 +34,7 @@ export class ProductService {
         : product.categoryId;
 
       const resultProduct = await this.conn.query(
-        'INSERT INTO products(category_id, sku, name, description, weight, width, length, height, image, price) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *',
+        'INSERT INTO products(category_id, sku, name, description, weight, width, length, height, image, price) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
         [
           categoryId,
           product.sku,
@@ -48,28 +50,28 @@ export class ProductService {
       );
 
       if (resultProduct.rowCount === 0) {
-        throw 'Error';
+        throw new Error(ERROR_CODE[500]);
       }
 
       await this.conn.query('COMMIT');
 
       return {
         success: true,
-        error: '',
+        errorCode: '',
       };
     } catch (error) {
       await this.conn.query('ROLLBACK');
 
       return {
         success: false,
-        error: error.message || '',
+        errorCode: ERROR_CODE[error.message] || ERROR_CODE[500],
       };
     }
   }
 
   async getAll(
-    pagination: PaginationRequest,
-  ): Promise<{ success: boolean; products: Product[]; error: string }> {
+    pagination: Pagination,
+  ): Promise<{ success: boolean; products: Product[]; errorCode: string }> {
     try {
       const resultProducts = await this.conn.query(
         'SELECT p.id, p.category_id, c.name AS category_name, p.sku, p.name, p.description, p.weight, p.width, p.length, p.height, p.image, p.price FROM products p LEFT JOIN categories c ON p.category_id = c.id LIMIT $1 OFFSET $2',
@@ -77,7 +79,7 @@ export class ProductService {
       );
 
       if (resultProducts.rowCount === 0) {
-        throw 'Error not found';
+        throw new Error(ERROR_CODE[404]);
       }
 
       const products = resultProducts.rows.map<Product>((rawProduct) => ({
@@ -98,20 +100,20 @@ export class ProductService {
       return {
         success: true,
         products,
-        error: '',
+        errorCode: '',
       };
     } catch (error) {
       return {
         success: false,
         products: [],
-        error: error.message || '',
+        errorCode: ERROR_CODE[error.message] || ERROR_CODE[500],
       };
     }
   }
 
   async getById(
     id: number,
-  ): Promise<{ success: boolean; product: Product | null; error: string }> {
+  ): Promise<{ success: boolean; product: Product | null; errorCode: string }> {
     try {
       const resultProduct = await this.conn.query(
         `SELECT p.id, p.category_id, c.name AS category_name, p.sku, p.name, p.description, p.weight, p.width, p.length, p.height, p.image, p.price FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.id = $1`,
@@ -119,7 +121,7 @@ export class ProductService {
       );
 
       if (resultProduct.rowCount === 0) {
-        throw 'Error not found';
+        throw new Error(ERROR_CODE[404]);
       }
 
       return {
@@ -138,13 +140,13 @@ export class ProductService {
           weight: resultProduct.rows[0].weight,
           width: resultProduct.rows[0].width,
         },
-        error: '',
+        errorCode: '',
       };
     } catch (error) {
       return {
         success: false,
         product: null,
-        error: error.message || '',
+        errorCode: ERROR_CODE[error.message] || ERROR_CODE[500],
       };
     }
   }
