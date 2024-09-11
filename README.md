@@ -20,6 +20,7 @@ This project is served as a take home test assignment. This project has 2 servic
 
 - NestJS
 - PostgreSQL
+- dbmigrate
 
 ### Web Client App
 
