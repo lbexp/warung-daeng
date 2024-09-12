@@ -8,12 +8,14 @@ import { User } from 'src/entities/user.entity';
 export class UserService {
   constructor(@Inject(DB_CONNECTION) private conn: Pool) {}
 
-  async create(user: User): Promise<{ success: boolean; errorCode: string }> {
+  async create(
+    user: Omit<User, 'id'>,
+  ): Promise<{ success: boolean; user: User | null; errorCode: string }> {
     try {
       await this.conn.query('BEGIN');
 
       const resultUser = await this.conn.query(
-        'INSERT INTO users(name, email, password) VALUES($1, $2, $3)',
+        'INSERT INTO users(name, email, password) VALUES($1, $2, $3) RETURNING *',
         [user.name, user.email, user.password],
       );
 
@@ -26,6 +28,12 @@ export class UserService {
       return {
         success: true,
         errorCode: '',
+        user: {
+          id: resultUser.rows[0].id,
+          name: resultUser.rows[0].name,
+          email: resultUser.rows[0].email,
+          password: resultUser.rows[0].password,
+        },
       };
     } catch (error) {
       await this.conn.query('ROLLBACK');
@@ -33,6 +41,7 @@ export class UserService {
       return {
         success: false,
         errorCode: ERROR_CODE[error.message] || ERROR_CODE[500],
+        user: null,
       };
     }
   }
@@ -54,8 +63,8 @@ export class UserService {
         success: true,
         errorCode: '',
         user: {
-          email: resultUser.rows[0].email,
           id: resultUser.rows[0].id,
+          email: resultUser.rows[0].email,
           name: resultUser.rows[0].name,
           password: resultUser.rows[0].password,
         },

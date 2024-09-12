@@ -5,4 +5,4 @@ export const ERROR_CODE = {
   '401': '401', // Unauthorized
   '404': '404', // Not found
   '500': '500', // Internal server error
-};
+} as const;

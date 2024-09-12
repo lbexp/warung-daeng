@@ -9,6 +9,12 @@ const CONFIG = () => ({
     port: parseInt(env.DB_PORT || '5432', 10),
     ssl: env.DB_SSL === 'true',
   },
+  jwt: {
+    secret: env.JWT_SECRET,
+  },
+  bcrypt: {
+    salt: parseInt(env.BCRYPT_SALT, 10),
+  },
 });
 
 export default CONFIG;
