@@ -11,7 +11,7 @@ import { JwtModule } from '@nestjs/jwt';
         return {
           global: true,
           secret: configService.get('jwt.secret'),
-          signOptions: { expiresIn: '60s' },
+          signOptions: { expiresIn: '300s' },
         };
       },
     }),
