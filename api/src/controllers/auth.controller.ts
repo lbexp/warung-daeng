@@ -1,6 +1,6 @@
 import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
 
-import throwHttpException from 'src/helpers/throwHttpException';
+import generateHttpException from 'src/helpers/generateHttpException';
 
 import {
   SignInRequest,
@@ -25,7 +25,7 @@ export class AuthController {
     });
 
     if (!result.success) {
-      throw throwHttpException(result.errorCode);
+      throw generateHttpException(result.errorCode);
     }
 
     return {
@@ -47,7 +47,7 @@ export class AuthController {
     );
 
     if (!result.success) {
-      throw throwHttpException(result.errorCode);
+      throw generateHttpException(result.errorCode);
     }
 
     return {

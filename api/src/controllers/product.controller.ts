@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpException,
   HttpStatus,
   Param,
   Post,
@@ -10,7 +9,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { ERROR_CODE } from 'src/constants';
 import { MetaResponse, Pagination } from 'src/dtos/common.dto';
 import {
   CreateProductRequest,
@@ -20,6 +18,8 @@ import {
 
 import { AuthGuard } from 'src/guards/auth.guard';
 import { ProductService } from 'src/service/product.service';
+
+import generateHttpException from 'src/helpers/generateHttpException';
 
 @Controller('products')
 export class ProductController {
@@ -46,17 +46,7 @@ export class ProductController {
     });
 
     if (!result.success) {
-      switch (result.errorCode) {
-        case ERROR_CODE[400]:
-          throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
-        case ERROR_CODE[404]:
-          throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-        default:
-          throw new HttpException(
-            'Internal server error',
-            HttpStatus.INTERNAL_SERVER_ERROR,
-          );
-      }
+      throw generateHttpException(result.errorCode);
     }
 
     return {
@@ -73,17 +63,7 @@ export class ProductController {
     const result = await this.productService.getAll(query);
 
     if (!result.success) {
-      switch (result.errorCode) {
-        case ERROR_CODE[400]:
-          throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
-        case ERROR_CODE[404]:
-          throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-        default:
-          throw new HttpException(
-            'Internal server error',
-            HttpStatus.INTERNAL_SERVER_ERROR,
-          );
-      }
+      throw generateHttpException(result.errorCode);
     }
 
     return {
@@ -105,17 +85,7 @@ export class ProductController {
     const result = await this.productService.getById(parseInt(params.id, 10));
 
     if (!result.success) {
-      switch (result.errorCode) {
-        case ERROR_CODE[400]:
-          throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
-        case ERROR_CODE[404]:
-          throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-        default:
-          throw new HttpException(
-            'Internal server error',
-            HttpStatus.INTERNAL_SERVER_ERROR,
-          );
-      }
+      throw generateHttpException(result.errorCode);
     }
 
     return {
