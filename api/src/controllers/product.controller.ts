@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { MetaResponse, Pagination } from 'src/dtos/common.dto';
+import { MetaResponse, PaginationRequest } from 'src/dtos/common.dto';
 import {
   CreateProductRequest,
   GetAllProductsResponse,
@@ -58,9 +58,13 @@ export class ProductController {
   @UseGuards(AuthGuard)
   @Get()
   async getAll(
-    @Query() query: Pagination,
+    @Query() query: PaginationRequest,
   ): Promise<MetaResponse<GetAllProductsResponse>> {
-    const result = await this.productService.getAll(query);
+    const result = await this.productService.getAll({
+      limit: parseInt(query.limit || '0', 10),
+      page: parseInt(query.page || '0', 10),
+      search: query.search,
+    });
 
     if (!result.success) {
       throw generateHttpException(result.errorCode);
@@ -70,8 +74,8 @@ export class ProductController {
       message: 'Success',
       statusCode: HttpStatus.OK,
       data: {
-        limit: query.limit,
-        page: query.page,
+        limit: result.pagination.limit,
+        page: result.pagination.page,
         data: result.products,
       },
     };

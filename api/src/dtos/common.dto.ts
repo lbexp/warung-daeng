@@ -1,6 +1,7 @@
-export class Pagination {
-  page: number;
-  limit: number;
+export class PaginationRequest {
+  page: string;
+  limit: string;
+  search: string;
 }
 
 export class MetaResponse<T = unknown> {

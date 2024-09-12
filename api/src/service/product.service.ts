@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Pool, QueryResult } from 'pg';
 
 import { DB_CONNECTION, ERROR_CODE } from 'src/constants';
-import { Pagination } from 'src/dtos/common.dto';
+import { Pagination } from 'src/entities/common.entity';
 import { Product } from 'src/entities/product.entity';
 
 @Injectable()
@@ -69,14 +69,29 @@ export class ProductService {
     }
   }
 
-  async getAll(
-    pagination: Pagination,
-  ): Promise<{ success: boolean; products: Product[]; errorCode: string }> {
+  async getAll(pagination: Pagination): Promise<{
+    success: boolean;
+    pagination: Pagination;
+    products: Product[];
+    errorCode: string;
+  }> {
+    const limit = pagination.limit || 20;
+    const page = pagination.page || 1;
+    const search = pagination.search || '';
+
+    let query =
+      'SELECT p.id, p.category_id, c.name AS category_name, p.sku, p.name, p.description, p.weight, p.width, p.length, p.height, p.image, p.price FROM products p LEFT JOIN categories c ON p.category_id = c.id';
+    const queryValues: Array<string | number> = [limit, limit * (page - 1)];
+
+    if (search) {
+      query = `${query} WHERE LOWER(p.name) LIKE $3`;
+      queryValues.push(`%${search.toLowerCase()}%`);
+    }
+
+    query = `${query} LIMIT $1 OFFSET $2`;
+
     try {
-      const resultProducts = await this.conn.query(
-        'SELECT p.id, p.category_id, c.name AS category_name, p.sku, p.name, p.description, p.weight, p.width, p.length, p.height, p.image, p.price FROM products p LEFT JOIN categories c ON p.category_id = c.id LIMIT $1 OFFSET $2',
-        [pagination.limit, pagination.limit * (pagination.page - 1)],
-      );
+      const resultProducts = await this.conn.query(query, queryValues);
 
       if (resultProducts.rowCount === 0) {
         throw new Error(ERROR_CODE[404]);
@@ -100,12 +115,22 @@ export class ProductService {
       return {
         success: true,
         products,
+        pagination: {
+          limit,
+          page,
+          search,
+        },
         errorCode: '',
       };
     } catch (error) {
       return {
         success: false,
         products: [],
+        pagination: {
+          limit: 0,
+          page: 0,
+          search: '',
+        },
         errorCode: ERROR_CODE[error.message] || ERROR_CODE[500],
       };
     }
