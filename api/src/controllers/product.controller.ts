@@ -28,8 +28,8 @@ export class ProductController {
   ): Promise<MetaResponse> {
     const result = await this.productService.create({
       id: createProductRequest.id,
-      categoryId: createProductRequest.category_id,
-      categoryName: createProductRequest.category_name,
+      categoryId: createProductRequest.categoryId,
+      categoryName: createProductRequest.categoryName,
       description: createProductRequest.description,
       height: createProductRequest.height,
       image: createProductRequest.image,

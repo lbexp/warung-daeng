@@ -1,7 +1,7 @@
 export class CreateProductRequest {
   id: number;
-  category_id: number;
-  category_name: string;
+  categoryId: number;
+  categoryName: string;
   sku: string;
   name: string;
   description: string;
