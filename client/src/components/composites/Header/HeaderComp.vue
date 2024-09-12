@@ -3,7 +3,7 @@ import { RouterLink } from 'vue-router'
 </script>
 
 <template>
-  <header class="wrapper">
+  <header :class="$style.wrapper">
     <RouterLink to="/">
       <h1>Warung Daeng</h1>
     </RouterLink>
@@ -14,12 +14,18 @@ import { RouterLink } from 'vue-router'
   </header>
 </template>
 
-<style scoped>
+<style module>
 .wrapper {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   padding: 12px;
   margin-bottom: solid 2px;
+
+  border-radius: 0px 0px 8px 8px;
+
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 0px 24px;
+  background-color: var(--color-background);
 }
 </style>

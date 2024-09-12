@@ -1,5 +1,5 @@
 <script setup lang="ts"></script>
-
 <template>
-  <main>Login</main>
+  <input />
 </template>
+<style></style>
