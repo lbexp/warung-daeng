@@ -7,21 +7,25 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ERROR_CODE } from 'src/constants';
 
+import { ERROR_CODE } from 'src/constants';
 import { MetaResponse, Pagination } from 'src/dtos/common.dto';
 import {
   CreateProductRequest,
   GetAllProductsResponse,
   GetProductResponse,
 } from 'src/dtos/product.dto';
+
+import { AuthGuard } from 'src/guards/auth.guard';
 import { ProductService } from 'src/service/product.service';
 
 @Controller('products')
 export class ProductController {
   constructor(private productService: ProductService) {}
 
+  @UseGuards(AuthGuard)
   @Post()
   async create(
     @Body() createProductRequest: CreateProductRequest,
@@ -61,6 +65,7 @@ export class ProductController {
     };
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   async getAll(
     @Query() query: Pagination,
@@ -92,6 +97,7 @@ export class ProductController {
     };
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
   async getById(
     @Param() params: { id: string },

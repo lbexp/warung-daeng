@@ -1,5 +1,5 @@
 import { Global, Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 import { Pool } from 'pg';
 
@@ -18,9 +18,9 @@ const dbProvider = {
     });
   },
 };
+
 @Global()
 @Module({
-  imports: [ConfigModule],
   providers: [dbProvider],
   exports: [dbProvider],
 })
