@@ -8,6 +8,35 @@ import { User } from 'src/entities/user.entity';
 export class UserService {
   constructor(@Inject(DB_CONNECTION) private conn: Pool) {}
 
+  async create(user: User): Promise<{ success: boolean; errorCode: string }> {
+    try {
+      await this.conn.query('BEGIN');
+
+      const resultUser = await this.conn.query(
+        'INSERT INTO users(name, email, password) VALUES($1, $2, $3)',
+        [user.name, user.email, user.password],
+      );
+
+      if (resultUser.rowCount === 0) {
+        throw new Error(ERROR_CODE[500]);
+      }
+
+      await this.conn.query('COMMIT');
+
+      return {
+        success: true,
+        errorCode: '',
+      };
+    } catch (error) {
+      await this.conn.query('ROLLBACK');
+
+      return {
+        success: false,
+        errorCode: ERROR_CODE[error.message] || ERROR_CODE[500],
+      };
+    }
+  }
+
   async getUserByEmail(
     email: string,
   ): Promise<{ success: boolean; user: User | null; errorCode: string }> {
