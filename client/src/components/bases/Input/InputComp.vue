@@ -1,5 +1,15 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+defineProps({
+  labelValue: String
+})
+
+const value = defineModel('value')
+</script>
+
 <template>
-  <input />
+  <label v-if="Boolean(labelValue)">{{ labelValue }}</label>
+
+  <input v-model="value" />
 </template>
+
 <style></style>

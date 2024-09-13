@@ -1,12 +1,18 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+
 import CardComp from '@/components/bases/Card/CardComp.vue'
 import LoginFormComp from './components/LoginFormComp.vue'
+import RegisterFormComp from './components/RegisterFormComp.vue'
+
+const isRegister = ref(false)
 </script>
 
 <template>
   <div :class="$style.wrapper">
     <CardComp>
-      <LoginFormComp />
+      <RegisterFormComp v-if="isRegister.valueOf()" />
+      <LoginFormComp v-else @register="isRegister = !isRegister.valueOf()" />
     </CardComp>
   </div>
 </template>
