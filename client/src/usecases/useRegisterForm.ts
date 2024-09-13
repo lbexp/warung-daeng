@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import useAuthStore from '@/stores/auth'
 import useSignUp from '@/repositories/useSignUp'
@@ -10,6 +11,7 @@ export default function useRegisterForm() {
 
   const { onSaveAuth } = useAuthStore()
   const { loading, onFetch } = useSignUp()
+  const { push } = useRouter()
 
   const signUp = async () => {
     const { data, error } = await onFetch({
@@ -24,6 +26,7 @@ export default function useRegisterForm() {
     }
 
     onSaveAuth(data.accessToken, email.value)
+    push('/')
   }
 
   return {

@@ -17,5 +17,3 @@ onBeforeMount(() => {
   <HeaderComp />
   <RouterView />
 </template>
-
-<style scoped></style>

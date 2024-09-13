@@ -3,12 +3,14 @@ import { defineStore } from 'pinia'
 
 import type { User } from '@/entities/User'
 
+const LS_KEY = 'auth'
+
 const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
 
   function initAuth() {
     try {
-      const savedAuth = JSON.parse(localStorage.getItem('auth') || '') as unknown as User
+      const savedAuth = JSON.parse(localStorage.getItem(LS_KEY) || '') as unknown as User
       user.value = savedAuth
     } catch (error) {
       user.value = null
@@ -17,7 +19,7 @@ const useAuthStore = defineStore('auth', () => {
 
   function saveAuth(token: string, email: string) {
     localStorage.setItem(
-      'auth',
+      LS_KEY,
       JSON.stringify({
         accessToken: token,
         user: {
@@ -35,6 +37,7 @@ const useAuthStore = defineStore('auth', () => {
   }
 
   function clearAuth() {
+    localStorage.removeItem(LS_KEY)
     user.value = null
   }
 

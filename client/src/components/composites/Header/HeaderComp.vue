@@ -30,5 +30,7 @@ const { user } = useAuthStore()
 
   box-shadow: rgba(149, 157, 165, 0.2) 0px 0px 24px;
   background-color: var(--color-background);
+
+  margin-bottom: 24px;
 }
 </style>
