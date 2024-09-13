@@ -10,6 +10,7 @@ export default function useSignIn() {
 
   async function fetchData({ email, password }: LoginData) {
     loading.value = true
+    error.value = ''
 
     try {
       const response = await fetch(`${API_URL}/auth/login`, {

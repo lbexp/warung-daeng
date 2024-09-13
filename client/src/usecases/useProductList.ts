@@ -9,6 +9,14 @@ export default function useProductList() {
 
   const { error, loading, products, onFetch } = useGetProducts()
 
+  const prevPage = () => {
+    page.value--
+  }
+
+  const nextPage = () => {
+    page.value++
+  }
+
   onMounted(() => {
     onFetch({
       search: search.value,
@@ -35,6 +43,8 @@ export default function useProductList() {
     products,
     page,
     search,
-    error
+    error,
+    onPrevPage: prevPage,
+    onNextPage: nextPage
   }
 }

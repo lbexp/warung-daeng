@@ -1,35 +1,29 @@
 import { ref } from 'vue'
 
 import { API_URL } from '@/config'
-
-import useAuthStore from '@/stores/auth'
 import type { Product } from '@/entities/Product'
 
-export default function useGetProducts() {
+import useAuthStore from '@/stores/auth'
+
+export default function useCreateProduct() {
   const loading = ref(false)
   const error = ref('')
 
-  const products = ref<Product[]>([])
-
   const { user, onClearAuth } = useAuthStore()
 
-  async function fetchData({ search, page }: { search: string; page: number }) {
+  async function fetchData(payload: Omit<Product, 'id' | 'categoryId'>) {
     loading.value = true
     error.value = ''
 
-    const queryParams = new URLSearchParams({
-      search,
-      page: `${page}`
-    })
-
     try {
-      const response = await fetch(`${API_URL}/products?${queryParams.toString()}`, {
+      const response = await fetch(`${API_URL}/products`, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
           ...(user?.accessToken && { Authorization: `Bearer ${user.accessToken}` })
         },
-        method: 'GET'
+        method: 'POST',
+        body: JSON.stringify(payload)
       })
 
       const resultData = await response.json()
@@ -41,17 +35,14 @@ export default function useGetProducts() {
 
         throw new Error(resultData.message || 'Network error')
       }
-
-      products.value = resultData.data.data
     } catch (err) {
-      products.value = []
       error.value = (err as Error)?.message || 'Error undefined'
     } finally {
       loading.value = false
     }
 
-    return { products: products.value, error: error.value }
+    return { success: !error.value, error: error.value }
   }
 
-  return { loading, products, error, onFetch: fetchData }
+  return { loading, error: error, onFetch: fetchData }
 }

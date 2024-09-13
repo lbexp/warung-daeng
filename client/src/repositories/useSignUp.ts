@@ -10,6 +10,7 @@ export default function useSignUp() {
 
   async function fetchData({ name, email, password }: RegisterData) {
     loading.value = true
+    error.value = ''
 
     try {
       const response = await fetch(`${API_URL}/auth/register`, {
