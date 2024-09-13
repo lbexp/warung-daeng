@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
+import useAuthStore from '@/stores/auth'
+
+const { user } = useAuthStore()
 </script>
 
 <template>
@@ -9,7 +12,7 @@ import { RouterLink } from 'vue-router'
     </RouterLink>
 
     <nav>
-      <RouterLink to="/login">Login</RouterLink>
+      <RouterLink v-if="!user" to="/login">Login</RouterLink>
     </nav>
   </header>
 </template>

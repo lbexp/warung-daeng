@@ -8,3 +8,8 @@ export interface RegisterData {
   email: string
   password: string
 }
+
+export interface User {
+  accessToken: string
+  user: { email: string }
+}

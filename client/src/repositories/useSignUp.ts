@@ -6,7 +6,7 @@ import type { RegisterData } from '@/entities/User'
 export default function useSignUp() {
   const loading = ref(false)
   const error = ref('')
-  const data = ref(null)
+  const data = ref<{ accessToken: string } | null>(null)
 
   async function fetchData({ name, email, password }: RegisterData) {
     loading.value = true
@@ -31,14 +31,14 @@ export default function useSignUp() {
         throw new Error(resultData.message || 'Network error')
       }
 
-      data.value = resultData
+      data.value = resultData.data
     } catch (err) {
       error.value = (err as Error)?.message || 'Error undefined'
     } finally {
       loading.value = false
     }
 
-    return { data: data, error: error.value }
+    return { data: data.value, error: error.value }
   }
 
   return { loading, error, onFetch: fetchData }
