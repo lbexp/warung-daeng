@@ -20,7 +20,7 @@ export class ProductService {
 
       if (!product.categoryId) {
         resultCategory = await this.conn.query(
-          'INSERT INTO categories(name) VALUES($1)',
+          'INSERT INTO categories(name) VALUES($1) RETURNING *',
           [product.categoryName],
         );
 
